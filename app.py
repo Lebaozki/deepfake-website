@@ -3,6 +3,7 @@ import streamlit as st
 import requests
 from PIL import Image
 from io import BytesIO
+import ast
 
 # Set page title and favicon
 st.set_page_config(
@@ -16,49 +17,69 @@ st.title("Deepfake Detection")
 # Subheading
 st.subheader("Is your image real?")
 
-url = 'https://deepfakepreproc-abexurulqa-ew.a.run.app/docs'
+url = 'https://deepfakepreproc-abexurulqa-ew.a.run.app'
 
 # File upload widget
-uploaded_image = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
+img_file_buffer = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
 
 # Check if an image is uploaded
-if uploaded_image:
-    st.image(uploaded_image, caption="Uploaded Image", use_column_width=True)
 
-    # Make an API request when a button is clicked
-    if st.button("Get Prediction"):
-        # API endpoint URL
-        api_url = "https://deepfakepreproc-abexurulqa-ew.a.run.app/upload_image"  # Replace with your API URL
+if img_file_buffer is not None:
 
-        try:
-            # Prepare the image for API request
-            image_data = BytesIO(uploaded_image.read())
-            files = {"image": ("image.jpg", image_data)}
+  col1, col2 = st.columns(2)
 
-            # Send the image to the API as a POST request
-            response = requests.post(api_url, data=files)
+  with col1:
+    ### Display the image user uploaded
+    st.image(Image.open(img_file_buffer), caption="Uploaded Image")
 
-            if response.status_code == 200:
-                # Parse the API response (assuming it's JSON)
-                prediction = response.json()
-                st.write("Prediction:", prediction["label"])
+
+  with col2:
+    with st.spinner("Wait for it..."):
+        ### Get bytes from the file buffer
+        img_bytes = img_file_buffer.getvalue()
+
+        ### Make request to  API (stream=True to stream response as bytes)
+        res = requests.post(url + "/upload_image", files={'img': img_bytes})
+
+        if res.status_code == 200:
+            #change code if backend gives dict (remove .tobytes())
+            answer_dict = ast.literal_eval(res.content.decode('utf-8'))
+
+            if answer_dict["prob"] == 'real':
+                response_printout = "✅ " + answer_dict["prob"].upper() + " ✅"
+            elif answer_dict["prob"] == 'fake':
+                response_printout = "❌ " + answer_dict["prob"].upper() + " ❌"
             else:
-                st.write("Error:", response.status_code, response.text)
+                response_printout = "❓ ...unreadable... ❓"
 
-        except Exception as e:
-            st.write("An error occurred:", str(e))
+            with st.container():
+                st.markdown("<br>", unsafe_allow_html=True)
+                st.markdown("<br>", unsafe_allow_html=True)
+                st.markdown("<br>", unsafe_allow_html=True)
+                st.markdown('<div style="text-align: center; font-size: 25px;">This image seems to be:</div>', unsafe_allow_html=True)
+                st.markdown(f'<div style="text-align: center; font-size: 50px;"><b>{response_printout}</b></div>', unsafe_allow_html=True)
+                #st.write(answer_dict['prob'])
+
+        else:
+            st.markdown("**Oops**, something went wrong. Please try again.")
+            st.write(res.status_code, res.content)
+            print((res.status_code, res.content))
 
 
-
-# Prediction result section
-st.markdown("### Prediction Result")
-st.write("Predicted result will appear here after uploading an image.")
-
-# Disclaimer
+# Add any additional content or styling as needed
+#Test commit
 st.markdown("## Disclaimer")
 st.write(
     "This project is an academic endeavor. While the results of our predictive model are impressive, we are not the definitive tool to prove anything. Please use it with caution and discretion."
 )
+
+st.markdown("""
+  <style>
+    css-1v0mbdj.etr89bj1 > img{
+      border-radius: 50%;
+    }
+  </style>
+""", unsafe_allow_html=True)
 
 # Add any additional content or styling as needed
 #Test commit
