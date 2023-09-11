@@ -1,11 +1,16 @@
 import streamlit as st
-
-
+from PIL import Image
+import requests
+from dotenv import load_dotenv
+import os
 # Set page title and favicon
 st.set_page_config(
     page_title="Deepfake Detection",
     page_icon=":smiley:",
 )
+
+# with open ('style.css') as f:
+#     st.markdown(f'<style>{f.read}</style>', unsafe_allow_html=True)
 
 # Define Streamlit app content
 st.title("Deepfake Detection")
@@ -16,34 +21,30 @@ st.subheader("Is your image real?")
 url = 'https://deepfakepreproc-abexurulqa-ew.a.run.app/docs'
 
 # File upload widget
-uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
+img_file_buffer = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
 
-# Display uploaded image if available
-if uploaded_file is not None:
-    st.image(uploaded_file, caption="Uploaded Image", use_column_width=True)
+if img_file_buffer is not None:
 
-# Prediction result section
-st.markdown("### Prediction Result")
-st.write("Predicted result will appear here after uploading an image.")
+  col1, col2 = st.columns(2)
 
-# Disclaimer
-st.markdown("## Disclaimer")
-st.write(
-    "This project is an academic endeavor. While the results of our predictive model are impressive, we are not the definitive tool to prove anything. Please use it with caution and discretion."
-)
+  with col1:
+    ### Display the image user uploaded
+    st.image(Image.open(img_file_buffer), caption="Here's the image you uploaded ☝️")
+
+  with col2:
+    with st.spinner("Wait for it..."):
+      ### Get bytes from the file buffer
+      img_bytes = img_file_buffer.getvalue()
+
+      ### Make request to  API (stream=True to stream response as bytes)
+      res = requests.post(url + "/upload_image", files={'img': img_bytes})
+
+      if res.status_code == 200:
+        ### Display the image returned by the API
+        st.image(res.content, caption="Image returned from API ☝️")
+      else:
+        st.markdown("**Oops**, something went wrong 😓 Please try again.")
+        print(res.status_code, res.content)
 
 # Add any additional content or styling as needed
 #Test commit
-
-# Custom CSS
-custom_css = """
-<style>
-body {
-    background-color: #282D34;
-}
-
-</style>
-"""
-
-# Add custom CSS to the Streamlit app
-st.markdown(custom_css, unsafe_allow_html=True)
