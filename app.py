@@ -1,5 +1,6 @@
 import streamlit as st
 
+
 # Set page title and favicon
 st.set_page_config(
     page_title="Deepfake Detection",
@@ -33,3 +34,16 @@ st.write(
 
 # Add any additional content or styling as needed
 #Test commit
+
+# Custom CSS
+custom_css = """
+<style>
+body {
+    background-color: #282D34;
+}
+
+</style>
+"""
+
+# Add custom CSS to the Streamlit app
+st.markdown(custom_css, unsafe_allow_html=True)
