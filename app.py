@@ -64,7 +64,10 @@ if img_file_buffer is not None:
             st.markdown("**Oops**, something went wrong. Please try again.")
             st.write(res.status_code, res.content)
             print((res.status_code, res.content))
-
+else:
+    # Add an image
+    screenshot = Image.open('picture/screenshot.png')
+    st.image(screenshot, use_column_width = "always")
 
 # Add any additional content or styling as needed
 #Test commit
