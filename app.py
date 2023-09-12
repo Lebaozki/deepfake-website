@@ -11,7 +11,7 @@ st.set_page_config(
     page_icon=Image.open("DeepFakeDetection_FavIcon2.png"),
 )
 
-st.sidebar.image("Logo.png", width=100)
+#st.sidebar.image("Logo.png", width=100)
 
 # Define Streamlit app content
 st.title("Deepfake Detection")
@@ -47,13 +47,13 @@ if img_file_buffer is not None:
         if res.status_code == 200:
             #change code if backend gives dict (remove .tobytes())
             answer_dict = ast.literal_eval(res.content.decode('utf-8'))
-
-            if answer_dict["prob"] == 'real':
-                response_printout = "✅ " + answer_dict["prob"].upper() + " ✅"
-            elif answer_dict["prob"] == 'fake':
-                response_printout = "❌ " + answer_dict["prob"].upper() + " ❌"
+            answer = answer_dict['prob'][0]
+            if answer == 'real':
+                response_printout = "✅ " + answer.upper() + " ✅"
+            elif answer == 'fake':
+                response_printout = "❌ " + answer.upper() + " ❌"
             else:
-                response_printout = "❓ ...unreadable... ❓"
+                response_printout = f"❓ ...unreadable... ({answer}) ❓"
 
             with st.container():
                 st.markdown("<br>", unsafe_allow_html=True)
@@ -76,7 +76,7 @@ else:
 #Test commit
 st.markdown("## Disclaimer")
 st.write(
-    "This project is an academic endeavor. While the results of our predictive model are impressive, we are not the definitive tool to prove anything. Please use it with caution and discretion."
+    "This project is an academic endeavor. While the results of our classification model are impressive, we are not the definitive tool to prove anything. Please use it with caution and discretion."
 )
 
 st.markdown("""
