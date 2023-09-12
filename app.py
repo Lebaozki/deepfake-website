@@ -8,16 +8,19 @@ import ast
 # Set page title and favicon
 st.set_page_config(
     page_title="Deepfake Detection",
-    page_icon=":smiley:",
+    page_icon=Image.open("DeepFakeDetection_FavIcon2.png"),
 )
+
+st.sidebar.image("Logo.png", width=100)
 
 # Define Streamlit app content
 st.title("Deepfake Detection")
 
+
 # Subheading
 st.subheader("Is your image real?")
 
-url = 'https://deepfakepreproc-abexurulqa-ew.a.run.app'
+url = 'https://deepfake-abexurulqa-ew.a.run.app'
 
 # File upload widget
 img_file_buffer = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
