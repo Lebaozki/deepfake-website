@@ -5,6 +5,7 @@ from PIL import Image
 from io import BytesIO
 import ast
 import plotly.express as px
+import math
 
 url = 'https://deepfake-abexurulqa-ew.a.run.app'
 res = ""
@@ -105,7 +106,8 @@ with col3:
 if res == "":
     pass
 else:
-    st.write(f'<span style="font-size: 30px; font-weight: bold;">I am {round(perc*100, 2)}% certain this image is {res}</span>', unsafe_allow_html=True)
+    st.write(f'<span style="font-size: 30px; font-weight: bold;">I am {round(perc*100, 2) if perc < 1 else 99.99}% certain this image is {res}</span>', unsafe_allow_html=True)
+    
 
 
 st.markdown("<br><br>", unsafe_allow_html=True)
