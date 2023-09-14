@@ -5,10 +5,8 @@ from PIL import Image
 from io import BytesIO
 import ast
 import plotly.express as px
-
 url = 'https://deepfake-abexurulqa-ew.a.run.app'
 res = ""
-
 # Set page title and favicon
 st.set_page_config(
     page_title="Deepfake Detection",
@@ -18,13 +16,9 @@ st.set_page_config(
 )
 #st.sidebar.title("Menu")
 #st.sidebar.image("DeepFakeDetection_Logo.png", use_column_width=True, width=150)
-
 col1, col2, col3 = st.columns([1,2,1])
-
 with col1:
     st.image("images/DeepFakeDetection_Logo.png", width=200, caption="", use_column_width=False)
-
-
 with col2:
     st.title("Deepfake Detection")
     # Logo and header styling with HTML/CSS
@@ -39,16 +33,12 @@ with col2:
             }
         </style>
     """
-
     st.markdown(header_style, unsafe_allow_html=True)
-    st.markdown("<div class='header-text'>Is your image real?</div>", unsafe_allow_html=True)
-
+    st.markdown("<div class='header-text'>Is your face real?</div>", unsafe_allow_html=True)
     # File upload widget
-    img_file_buffer = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
-
-
+    img_file_buffer = st.file_uploader("Upload an image or take a selfie", type=["jpg", "jpeg", "png"])
 if img_file_buffer is not None:
-    col1, col2, col3, col4 = st.columns([1,2,2,1])
+    col1, col2, col3, col4 = st.columns([1,1,1,1])
     with col2:
         st.markdown("<br><br>", unsafe_allow_html=True)
         #st.write('Uploaded Image')
@@ -57,7 +47,6 @@ if img_file_buffer is not None:
         with st.spinner("Wait for it..."):
             ### Get bytes from the file buffer
             img_bytes = img_file_buffer.getvalue()
-
             ### Make request to  API (stream=True to stream response as bytes)
             res = requests.post(url + "/upload_image", files={'img': img_bytes})
         with col3:
@@ -75,26 +64,19 @@ if img_file_buffer is not None:
                 data_dict = {'Fake': answer[0], 'Real': answer[1]}
                 if answer[1]:
                     df = pd.DataFrame(list(data_dict.items()), columns=['Category', 'Percentage'])
-                    custom_colors = {'Fake': '#D42B42', 'Real': '#42D42B'}
+                    custom_colors = {'Fake': '#9B4A1A', 'Real': '#A9E023'}
                     fig = px.bar(df,
                                  x='Category',
                                  y='Percentage',
                                  range_y=[0,1],
                                  color='Category',
                                  color_discrete_sequence=[custom_colors[cat] for cat in df['Category']],
-                                 opacity=0.8)
+                                 opacity=1,
+                                 width=450
+                                 )
                     st.plotly_chart(fig)
                 else:
-                    response_printout = f"❓ ...unreadable... ({answer}) ❓"
-
-                # with st.container():
-                #     st.markdown("<br>", unsafe_allow_html=True)
-                #     st.markdown("<br>", unsafe_allow_html=True)
-                #     st.markdown("<br>", unsafe_allow_html=True)
-                    #st.markdown('<div style="text-align: center; font-size: 25px;">This image seems to be:</div>', unsafe_allow_html=True)
-                    #st.markdown(f'<div style="text-align: center; font-size: 50px;"><b>{response_printout}</b></div>', unsafe_allow_html=True)
-                    #st.write(answer_dict['prob'])
-
+                    response_printout = f":question: ...unreadable... ({answer}) :question:"
             else:
                 st.markdown("**Oops**, something went wrong. Please try again.")
                 st.write(res.status_code, res.content)
@@ -104,16 +86,12 @@ else:
     with col2:
         screenshot = Image.open('images/SlideSwirl.png')
         st.image(screenshot, use_column_width = "always")
-
 with col3:
     pass
-
 if res == "":
     pass
 else:
-    st.write(f'<span style="font-size: 20px; font-weight: bold;">I am {round(perc*100, 2)}% certain this image is {res}</span>', unsafe_allow_html=True)
-
-
+    st.write(f'<span style="font-size: 30px; font-weight: bold;">I am {round(perc*100, 2) if perc < 1 else 99.99}% certain this image is {res}</span>', unsafe_allow_html=True)
 st.markdown("<br><br>", unsafe_allow_html=True)
 st.markdown("<br><br>", unsafe_allow_html=True)
 st.markdown("<br><br>", unsafe_allow_html=True)
