@@ -1,1 +1,2 @@
 plotly.express
+protobuf == 4.24.3
